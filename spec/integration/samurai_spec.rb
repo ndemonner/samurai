@@ -1,0 +1,57 @@
+require 'spec_helper'
+
+$user_count = 0
+
+describe Samurai do
+  let! :user_class do
+    anonymous_class(Samurai::Proxy) do
+      attr_accessor :id, :name, :email
+
+      provides :users
+    end
+  end
+
+  let! :service_class do
+    controller_class = anonymous_class(Samurai::Controller) do
+      def index
+        [:ok, users(4)]
+      end
+
+      def create(data)
+        [:ok, users[0].merge(data)]
+      end
+
+      def show(data)
+        [:ok, {id: data[:id], name: "Bob ##{data[:id]}", email: "bob_#{data[:id]}@example.com"}]
+      end
+
+      private
+      # helper method which pretends to grab some stuff from a db
+      def users(amount = 1)
+        amount.times.map do |n|
+          {id: n + 1, name: "Bob ##{n + 1}", email: "bob_#{n + 1}@example.com"}
+        end
+      end
+    end
+
+    anonymous_class(Samurai::Service) do
+      resource :users, expose: [:index, :create, :show, :update], with: controller_class
+
+      configure do |c|
+        c.log_level = :debug
+        c.log_clear_on_load = true
+      end
+    end
+  end
+
+  before(:each) { service_class.start! }
+  after(:each)  { service_class.stop! }
+
+  it 'fetches all of the objects for a resource' do
+    expect(user_class.all).to have(4).items
+  end
+
+  it 'can fetch one specific user' do
+    expect(user_class.find(1).id).to eq(1)
+  end
+end
