@@ -49,7 +49,12 @@ module Samurai
           hash
         end
 
-        block.call if block
+        begin
+          block.call if block
+        rescue Exception => e
+          stop!
+          raise e
+        end
       end
 
       def stop!
