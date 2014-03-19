@@ -19,12 +19,10 @@ describe Samurai::Service do
   end
 
   it 'can be configured with a block' do
-    mq = {hostname: 'mq.example.com', port: 1337}
-
     fake_service.configure do |c|
-      c.message_queue = mq
+      c.message_queue_host = '127.0.0.1'
     end
 
-    expect(fake_service.configuration.message_queue).to eq(mq)
+    expect(fake_service.configuration.message_queue_host).to eq('127.0.0.1')
   end
 end

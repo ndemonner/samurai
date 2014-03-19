@@ -8,9 +8,9 @@ describe Samurai::Service do
         [:ok, [1, 2, 3]]
       end
 
-      def create(data)
+      def create
         # Simple echo
-        [:ok, data]
+        [:ok, params]
       end
     end
   end
@@ -21,12 +21,12 @@ describe Samurai::Service do
     expect(fake_controller_class.new.try(method)).to eq(expected_value)
   end
 
-  it 'calls actions without data' do
+  it 'calls actions without params' do
     expect(fake_controller_class.new.try(:index)).to eq([:ok, [1, 2, 3]])
   end
 
-  it 'calls action with data' do
-    data = {some: 'cool', info: 'here'}
-    expect(fake_controller_class.new.try(:create, data)).to eq([:ok, data])
+  it 'calls action with params' do
+    params = {some: 'cool', info: 'here'}
+    expect(fake_controller_class.new.try(:create, params)).to eq([:ok, params])
   end
 end

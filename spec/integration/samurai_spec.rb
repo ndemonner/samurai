@@ -1,7 +1,5 @@
 require 'spec_helper'
 
-$user_count = 0
-
 describe Samurai do
   let! :user_class do
     anonymous_class(Samurai::Proxy) do
@@ -17,12 +15,12 @@ describe Samurai do
         [:ok, users(4)]
       end
 
-      def create(data)
-        [:ok, users[0].merge(data)]
+      def create
+        [:ok, users[0].merge(params)]
       end
 
-      def show(data)
-        [:ok, {id: data[:id], name: "Bob ##{data[:id]}", email: "bob_#{data[:id]}@example.com"}]
+      def show
+        [:ok, {id: params[:id], name: "Bob ##{params[:id]}", email: "bob_#{params[:id]}@example.com"}]
       end
 
       private
