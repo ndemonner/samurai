@@ -37,7 +37,8 @@ describe Samurai do
 
       configure do |c|
         c.log_level = :debug
-        c.log_clear_on_load = true
+        c.clear_log_on_load = true
+        c.log_to_console = false
       end
     end
   end

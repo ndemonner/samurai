@@ -6,7 +6,15 @@ module Samurai
       @plan   = args[:plan]
       @logger = Yell.new do |l|
         l.level = args[:config].log_level
-        l.adapter :file, "#{args[:config].log_directory}/#{args[:resource]}_listener.log"
+
+        if args[:config].log_to_file
+          l.adapter :file, "#{args[:config].log_directory}/#{args[:resource]}_listener.log"
+        end
+
+        if args[:config].log_to_console
+          l.adapter STDOUT, level: [:debug, :info, :warn]
+          l.adapter STDERR, level: [:error, :fatal]
+        end
       end
 
       logger.info "---"

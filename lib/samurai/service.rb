@@ -21,13 +21,21 @@ module Samurai
 
       def start!(&block)
         `mkdir -p #{configuration.log_directory}`
-        if configuration.log_clear_on_load
+        if configuration.clear_log_on_load
           `rm -f #{configuration.log_directory}/*`
         end
 
         @logger = Yell.new do |l|
           l.level = configuration.log_level
-          l.adapter :file, "#{configuration.log_directory}/samurai.log"
+
+          if configuration.log_to_file
+            l.adapter :file, "#{configuration.log_directory}/samurai.log"
+          end
+
+          if configuration.log_to_console
+            l.adapter STDOUT, level: [:debug, :info, :warn]
+            l.adapter STDERR, level: [:error, :fatal]
+          end
         end
 
         logger.info "---"
@@ -71,14 +79,18 @@ module Samurai
                     :message_queue_port, 
                     :log_level, 
                     :log_directory,
-                    :log_clear_on_load
+                    :clear_log_on_load,
+                    :log_to_console,
+                    :log_to_file
 
       def initialize
         @message_queue_host = '127.0.0.1'
         @message_queue_port = 5672
         @log_level          = :debug
         @log_directory      = 'log'
-        @log_clear_on_load  = false
+        @clear_log_on_load  = false
+        @log_to_console     = true
+        @log_to_file        = true
       end
     end
   end # Service
