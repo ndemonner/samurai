@@ -34,6 +34,7 @@ module Samurai
       # Let the service know we're ready to receive messages trhough a pipe
       args[:pipe].write('READY')
       args[:pipe].close
+
       begin
         service_q.subscribe(block: true) do |delivery_info, properties, payload|
           response = nil
@@ -52,9 +53,10 @@ module Samurai
             correlation_id: properties.correlation_id
           })
         end
-      rescue
-        logger.warn "Listener shutting down"
-        exit
+      rescue Interrupt => _
+        channel.close
+        connection.close
+        logger.info "Listener shutting down"
       end
     end
 
