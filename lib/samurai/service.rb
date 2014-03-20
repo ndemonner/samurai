@@ -59,6 +59,9 @@ module Samurai
 
         begin
           block.call if block
+        rescue Interrupt => _
+          logger.info "Interrupt received. Service shutting down."
+          stop!
         rescue Exception => e
           logger.error e
           stop!

@@ -56,7 +56,6 @@ module Samurai
       rescue Interrupt => _
         channel.close
         connection.close
-        logger.info "Listener shutting down"
       end
     end
 
