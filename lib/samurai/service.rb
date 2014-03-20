@@ -1,5 +1,13 @@
 module Samurai
   class Service
+    attr_accessor :logger
+    def initialize(l)
+      @logger = l
+    end
+
+    def run!
+    end
+
     class << self
       attr_accessor :routes, :configuration, :logger
 
@@ -19,7 +27,7 @@ module Samurai
         @routes[name][:controller] = args[:with] || "#{name.capitalize}Controller"
       end
 
-      def start!(&block)
+      def start!
         `mkdir -p #{configuration.log_directory}`
         if configuration.clear_log_on_load
           `rm -f #{configuration.log_directory}/*`
@@ -58,7 +66,8 @@ module Samurai
         end
 
         begin
-          block.call if block
+          service_instance = new logger
+          service_instance.run!
         rescue Interrupt => _
           logger.info "Interrupt received. Service shutting down."
           stop!
