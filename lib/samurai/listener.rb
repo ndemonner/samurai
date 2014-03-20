@@ -34,23 +34,27 @@ module Samurai
       # Let the service know we're ready to receive messages trhough a pipe
       args[:pipe].write('READY')
       args[:pipe].close
+      begin
+        service_q.subscribe(block: true) do |delivery_info, properties, payload|
+          response = nil
 
-      service_q.subscribe(block: true) do |delivery_info, properties, payload|
-        response = nil
+          begin
+            obj = JSON.parse(payload).with_indifferent_access
+            raw_response = handle(obj)
+            response = {type: 'response', status: raw_response[0], data: raw_response[1]}
+          rescue Exception => e
+            logger.error e
+            response = {type: 'response', status: :exception, data: e}
+          end
 
-        begin
-          obj = JSON.parse(payload).with_indifferent_access
-          raw_response = handle(obj)
-          response = {type: 'response', status: raw_response[0], data: raw_response[1]}
-        rescue Exception => e
-          logger.error e
-          response = {type: 'response', status: :exception, data: e}
+          exchange.publish(response.to_json, {
+            routing_key:    properties.reply_to,
+            correlation_id: properties.correlation_id
+          })
         end
-
-        exchange.publish(response.to_json, {
-          routing_key:    properties.reply_to,
-          correlation_id: properties.correlation_id
-        })
+      rescue
+        logger.warn "Listener shutting down"
+        exit
       end
     end
 
