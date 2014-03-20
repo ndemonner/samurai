@@ -25,7 +25,7 @@ module Samurai
           `rm -f #{configuration.log_directory}/*`
         end
 
-        @logger = Yell.new do |l|
+        @logger = Yell.new(format: configuration.log_format) do |l|
           l.level = configuration.log_level
 
           if configuration.log_to_file
@@ -81,7 +81,8 @@ module Samurai
                     :log_directory,
                     :clear_log_on_load,
                     :log_to_console,
-                    :log_to_file
+                    :log_to_file,
+                    :log_format
 
       def initialize
         @message_queue_host = '127.0.0.1'
@@ -91,6 +92,7 @@ module Samurai
         @clear_log_on_load  = false
         @log_to_console     = true
         @log_to_file        = true
+        @log_format         = Yell::DefaultFormat
       end
     end
   end # Service

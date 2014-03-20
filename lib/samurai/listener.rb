@@ -4,7 +4,7 @@ module Samurai
 
     def initialize(args)
       @plan   = args[:plan]
-      @logger = Yell.new do |l|
+      @logger = Yell.new(format: args[:config].log_format) do |l|
         l.level = args[:config].log_level
 
         if args[:config].log_to_file
