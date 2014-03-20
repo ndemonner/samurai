@@ -57,19 +57,24 @@ module Samurai
           hash
         end
 
+        Signal.trap('INT') { stop! }
+
         begin
-          Signal.trap('INT') { stop! }
           block.call if block
         rescue Exception => e
           stop!
-          raise e
+          logger.error e
         end
       end
 
       def stop!
         (@listeners ||= {}).each do |name, table|
-          Process.kill 'TERM', table[:pid]
-          Process.wait table[:pid]
+          begin 
+            Process.kill 'TERM', table[:pid]
+            Process.wait table[:pid]
+          rescue
+            logger.warn "Process no longer exists"
+          end
         end
         logger.info "Stopped listener processes for #{@listeners.keys.inspect}"
       end
