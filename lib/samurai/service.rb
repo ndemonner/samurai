@@ -58,6 +58,7 @@ module Samurai
         end
 
         begin
+          Signal.trap('INT') { stop! }
           block.call if block
         rescue Exception => e
           stop!
